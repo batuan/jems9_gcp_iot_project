@@ -1,3 +1,4 @@
 apache-airflow-providers-google
 pyarrow
-
+paho.mqtt
+shed==0.9.7
