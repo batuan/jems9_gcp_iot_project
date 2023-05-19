@@ -10,7 +10,7 @@ import datetime
 import threading
 import time
 import json
-import paho.mqtt.client as mqtt
+import paho.mqtt.client as mqtt #library de python
 
 # Connect to the MQTT broker
 client = mqtt.Client()
@@ -43,7 +43,7 @@ start_time = time.time()
 
 def rand():
     dateHour = datetime.datetime.now()
-    gpsSpeed = str(random.uniform(0, 87.06))
+    gpsSpeed = random.uniform(0, 87.06)
     gpsSatCount	= random.randint(0, 255)
     Gear = random.randint(124, 137)
     Brake_pedal	= Gear
@@ -55,25 +55,25 @@ def rand():
     Pressure_HighPressureReturn	= random.randint(0, 13)
     Pressure_HighPressure = random.randint(32767, 33195)
     Oil_Temperature	= random.randint(11, 255)
-    Ast_FrontAxleSpeed_Rpm = random.randint(32767, 33195)
+    Ast_FrontAxleSpeed_Rpm = random.randint(32767, 33195) # random.randit(min, max)
     Pump_Speed = random.randint(577, 1799)
 
     message = {
     'dateHour' : str(datetime.datetime.now()),
-    'gpsSpeed' : str(random.uniform(0, 87.06)),
-    'gpsSatCount'	: random.randint(0, 255),
-    'Gear' : random.randint(124, 137),
+    'gpsSpeed' : gpsSpeed,
+    'gpsSatCount'	: gpsSatCount,
+    'Gear' : Gear,
     'Brake_pedal' : Gear,
-    'Accel_pedal' : random.randint(0, 100),
+    'Accel_pedal' : Accel_pedal,
     'Machine_Speed_Mesured' : 20,
     'AST_Direction' : 20,
-    'Ast_HPMB1_Pressure_bar' : random.randint(0, 13),
-    'Ast_HPMA_Pressure_bar' : random.randint(0, 13),
-    'Pressure_HighPressureReturn' : random.randint(0, 13),
-    'Pressure_HighPressure' : random.randint(32767, 33195),
-    'Oil_Temperature' : random.randint(11, 255),
-    'Ast_FrontAxleSpeed_Rpm' : random.randint(32767, 33195),
-    'Pump_Speed' : random.randint(577, 1799),
+    'Ast_HPMB1_Pressure_bar' : Ast_HPMB1_Pressure_bar,
+    'Ast_HPMA_Pressure_bar' : Ast_HPMA_Pressure_bar,
+    'Pressure_HighPressureReturn' : Pressure_HighPressureReturn,
+    'Pressure_HighPressure' : Pressure_HighPressure,
+    'Oil_Temperature' : Oil_Temperature,
+    'Ast_FrontAxleSpeed_Rpm' : Ast_FrontAxleSpeed_Rpm,
+    'Pump_Speed' : Pump_Speed,
     }
 
     return (str(dateHour) + ';' + str(gpsSpeed) + ';' + str(gpsSatCount) + ';' + str(Gear) + ';' + str(Brake_pedal) + 
@@ -110,14 +110,14 @@ def printit():
 
     if row_count % max_rows_per_file == 0:
         save_data()
-    if time.time() - start_time > 60:
+    if time.time() - start_time > 30000:
         print("Stopping threads...")
         threading.Timer(1, print, args=("Stopping threads...",)).start()
         for t in threading.enumerate():
             if t != threading.current_thread():
                 t.cancel()
     else:
-        threading.Timer(2, printit).start() # remember to set 0.1 in real time, 2 for debugging
+        threading.Timer(0.1, printit).start() # remember to set 0.1 in real time, 2 for debugging
 
 save_data()
 printit()

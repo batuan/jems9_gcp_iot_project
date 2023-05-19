@@ -1,18 +1,19 @@
-import json
 import paho.mqtt.client as mqtt
 from kafka import KafkaProducer
-import sys
+import json
 
 kafka_producer = KafkaProducer(bootstrap_servers='localhost:9092')
-# Define the callback function that will handle incoming messages
+
 def on_message(client, userdata, message):
     # Decode the JSON message
     json_message = message.payload.decode('utf-8')
     message_data = json.loads(json_message)
-    # print(type(message), type(json_message), type(message_data))
-    kafka_producer.send(topic="sensor_data", value=json_message.encode("utf-8"))
+    kafka_producer.send(topic='sensor_data',
+                        value=json_message)
+    
     # Print the message data
     print('----------------------')
+    print('send message to kafka')
     print("Received message:")
     print("Date and Hour: ", message_data["dateHour"])
     print("GPS Speed: ", message_data["gpsSpeed"])
@@ -37,6 +38,7 @@ client.on_message = on_message
 
 if client.connect("0.0.0.0", 1883, 60) != 0:
     print("could not connect to mqtt broker!")
+    import sys
     sys.exit(-1)
 
 # Subscribe to the "vehicle/sensor_data" topic
