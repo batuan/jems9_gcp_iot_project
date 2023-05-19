@@ -1,7 +1,9 @@
 import json
 import paho.mqtt.client as mqtt
 import sys
-
+import dotenv as dtenv
+dtenv.load_dotenv()
+import os
 # Define the callback function that will handle incoming messages
 def on_message(client, userdata, message):
     # Decode the JSON message
@@ -37,7 +39,7 @@ if client.connect("0.0.0.0", 1883, 60) != 0:
     sys.exit(-1)
 
 # Subscribe to the "vehicle/sensor_data" topic
-client.subscribe("vehicle/sensor_data")
+client.subscribe( topic = os.environ.get("EMQX_TOPIC_NAME"))
 
 # Start the MQTT client loop
 try:
