@@ -85,7 +85,7 @@ def save_data():
         print(f"Saved {len(data_bf)} rows to {file_name}")
         """Write and read a blob from GCS using file-like IO"""
         storage_client = storage.Client()
-        bucket = storage_client.bucket("jems-iot-ali")
+        bucket = storage_client.bucket( os.environ.get("BUCKET_NAME"))
         blob = bucket.blob(file_name)
         #print("blob", blob)
         blob.upload_from_filename(file_name)
