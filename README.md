@@ -37,6 +37,7 @@ Run the following DAGs in sequence to generate the necessary tables
 - Docker
 - Airflow
 - Google Cloud Storage
+- DataFlow
 - Google Bigquery
 - Google Data Studio
 
