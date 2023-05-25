@@ -52,22 +52,24 @@ resource "google_compute_firewall" "emqx_ping" {
   ]
 }
 
-resource "google_compute_instance" "emqx_ee" {
-  count        = 3
-  name         = "emqx-ee-${count.index}"
-  machine_type = "e2-medium"
-  zone         = "europe-west9-a"
-
-  boot_disk {
-    initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2004-lts"
-      size = 20
-    }
+resource "google_compute_instance_template" "emqx" {
+  name = "emqx-template"
+  description = "install emqx when start"
+  machine_type = "e2-small"
+  region = "europe-west9"
+  disk {
+    source_image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    type         = "pd-standard"
+    disk_size_gb = 10
   }
 
-  metadata = {
-    ssh-keys = "thaibatuana1k41pbc:${file("/Users/batuan/.ssh/id_rsa.pub")}"
-  }
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get upgrade -y
+    wget https://www.emqx.com/en/downloads/enterprise/5.0.3/emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz
+    mkdir -p emqx && tar -zxvf emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz -C emqx
+  EOF
 
   network_interface {
     network       = google_compute_network.emqx_network.self_link
@@ -75,34 +77,94 @@ resource "google_compute_instance" "emqx_ee" {
     access_config {
       // Leave this empty to assign an ephemeral IP address to each instance
     }
-    network_ip = "10.0.0.1${count.index}"
   }
+}
+
+resource "google_compute_instance_group_manager" "emqx-cluster" {
+  name        = "emqx-cluster"
+  description = "EMQ X Cluster Instance Group"
+  zone = "europe-west9-a"
+
+  base_instance_name = "emqx-instance"
+  target_size        = 2
+
+  version {
+    name              = "app-emqx"
+    instance_template           = google_compute_instance_template.emqx.self_link
+  }
+
+  named_port {
+    name = "mqtt-ui"
+    port = 18083
+  }
+  named_port {
+    name = "mqtt"
+    port = 1883
+  }
+  named_port {
+    name = "mqtts"
+    port = 8883
+  }
+
+  named_port {
+    name = "http"
+    port = 80
+  }
+}
+
+
+
+
+# resource "google_compute_instance" "emqx_ee" {
+#   count        = 3
+#   name         = "emqx-ee-${count.index}"
+#   machine_type = "e2-medium"
+#   zone         = "europe-west9-a"
+
+#   # boot_disk {
+#   #   initialize_params {
+#   #     image = "ubuntu-os-cloud/ubuntu-2004-lts"
+#   #     size = 20
+#   #   }
+#   # }
+
+#   metadata = {
+#     ssh-keys = "thaibatuana1k41pbc:${file("/Users/batuan/.ssh/id_rsa.pub")}"
+#   }
+
+#   network_interface {
+#     network       = google_compute_network.emqx_network.self_link
+#     subnetwork    = google_compute_subnetwork.emqx_subnetwork.self_link
+#     access_config {
+#       // Leave this empty to assign an ephemeral IP address to each instance
+#     }
+#     network_ip = "10.0.0.1${count.index}"
+#   }
   
-  connection {
-    type        = "ssh"
-    user        = "thaibatuana1k41pbc"
-    private_key = file("/Users/batuan/.ssh/id_rsa")
-    host        = self.network_interface[0].access_config[0].nat_ip
-  }
+#   connection {
+#     type        = "ssh"
+#     user        = "thaibatuana1k41pbc"
+#     private_key = file("/Users/batuan/.ssh/id_rsa")
+#     host        = self.network_interface[0].access_config[0].nat_ip
+#   }
   
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update",
-      "sudo apt-get upgrade -y",
-      "wget https://www.emqx.com/en/downloads/enterprise/5.0.3/emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz",
-      "mkdir -p emqx && tar -zxvf emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz -C emqx",
-      "echo '${file("./template.conf")}' > ./emqx/etc/emqx.conf",
-      "echo 'node.name = 'emqx@${self.network_interface[0].network_ip}'' >> ./emqx/etc/emqx.conf",
-      "./emqx/bin/emqx start"
-    ]
-  }
+#   provisioner "remote-exec" {
+#     inline = [
+#       "sudo apt-get update",
+#       "sudo apt-get upgrade -y",
+#       "wget https://www.emqx.com/en/downloads/enterprise/5.0.3/emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz",
+#       "mkdir -p emqx && tar -zxvf emqx-enterprise-5.0.3-ubuntu20.04-amd64.tar.gz -C emqx",
+#       "echo '${file("./template.conf")}' > ./emqx/etc/emqx.conf",
+#       "echo 'node.name = 'emqx@${self.network_interface[0].network_ip}'' >> ./emqx/etc/emqx.conf",
+#       "./emqx/bin/emqx start"
+#     ]
+#   }
+# }
 
-}
+# output "external_ips" {
+#   value = google_compute_instance.emqx_ee[*].network_interface.0.access_config.0.nat_ip
+# }
 
-output "external_ips" {
-  value = google_compute_instance.emqx_ee[*].network_interface.0.access_config.0.nat_ip
-}
-
-output "instance_ips" {
-  value = google_compute_instance.emqx_ee[*].network_interface[0].network_ip
-}
+# output "instance_ips" {
+#   value = google_compute_instance.emqx_ee[*].network_interface[0].network_ip
+# }
