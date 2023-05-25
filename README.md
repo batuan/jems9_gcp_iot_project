@@ -41,4 +41,4 @@ Run the following DAGs in sequence to generate the necessary tables
 - Google Bigquery
 - Google Looker Studio
 
-
+# Project Architecture
