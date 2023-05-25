@@ -42,4 +42,4 @@ Run the following DAGs in sequence to generate the necessary tables
 - Google Looker Studio
 
 # Project Architecture
-![Alt Text](["https://github.com/batuan/jems9_gcp_iot_project/blob/main/IoT_project_Tech_Archi.drawio.png"]())
+![Alt Text]([https://github.com/batuan/jems9_gcp_iot_project/blob/main/IoT_project_Tech_Archi.drawio.png]())
