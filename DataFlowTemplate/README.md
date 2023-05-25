@@ -1,2 +1,2 @@
-#Apache Beam Template python SDK
+# Apache Beam Template python SDK
 python streaming.py --output_table --input_sub
