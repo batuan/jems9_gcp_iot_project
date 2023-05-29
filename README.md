@@ -36,9 +36,10 @@ Run the following DAGs in sequence to generate the necessary tables
 - Terraform
 - Docker
 - Airflow
-- Google Cloud Storage
+- Google Cloud Storage 
 - DataFlow
 - Google Bigquery
-- Google Data Studio
+- Google Looker Studio
 
-
+# Project Architecture
+![Alt Text](https://github.com/batuan/jems9_gcp_iot_project/raw/main/IoT_project_Tech_Archi.drawio.png)
