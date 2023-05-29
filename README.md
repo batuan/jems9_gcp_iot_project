@@ -31,6 +31,13 @@ Run the following DAGs in sequence to generate the necessary tables
 
 1. ingest_olist_dag - Download data from source and upload to GCS
 
+# Data Transformation using model and create new table/view in Bigquery 
+- dbt 
+```bash
+dbt run
+dbt run --full-refresh
+dbt test
+```
 
 # Technologies used
 - Terraform
